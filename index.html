@@ -644,23 +644,55 @@
             font-size: 13px;
         }
 
-        #accountsList { margin-top: 22px; }
+        #accountsList { gap: 10px; margin-top: 22px; }
 
-        .account, .empty-state { border-radius: 9px; background: #f5f5f5; }
+        .account, .empty-state { border-radius: 12px; }
 
         .account {
-            padding: 12px 14px;
-            border: 0;
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            background: #ffffff;
         }
 
         .account-index {
-            width: 28px;
-            background: transparent;
-            color: var(--muted);
-            font-family: "Geist Mono", ui-monospace, monospace;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #111111;
+            color: #ffffff;
+            font-family: "Geist", ui-sans-serif, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .account-address { font-family: "Geist Mono", ui-monospace, monospace; }
+        .account-details {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .account-name {
+            margin-bottom: 4px;
+            color: var(--ink);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .account-address {
+            display: block;
+            color: var(--muted);
+            font-family: "Geist Mono", ui-monospace, monospace;
+            font-size: 11px;
+        }
+
+        .account-badge {
+            flex: 0 0 auto;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background: #ecfdf3;
+            color: #067647;
+            font-size: 10px;
+            font-weight: 600;
+        }
 
         .empty-state {
             padding: 15px;
@@ -680,8 +712,9 @@
             text-align: center;
         }
 
-        #status.visible { box-shadow: none; color: var(--ink); }
-        #status.error { border-color: var(--line); background: transparent; color: #b42318; }
+        #status.visible { box-shadow: none; }
+        #status.success { border-color: #abefc6; background: #ecfdf3; color: #067647; }
+        #status.error { border-color: #fecdca; background: #fef3f2; color: #b42318; }
 
         .footer {
             margin: 28px 0 0;
@@ -705,6 +738,8 @@
             .balance-card + .balance-card { margin: 0; padding-left: 24px; border-left: 1px solid var(--line); }
             .grid .section:first-child,
             .grid .section:last-child { padding: 24px 20px; border-right: 1px solid #e3e3e3; }
+            .account { align-items: flex-start; }
+            .account-badge { margin-top: 2px; }
         }
     </style>
 </head>
@@ -785,7 +820,7 @@
             </section>
         </div>
 
-        <div id="status" role="status" aria-live="polite">Ready.</div>
+        <div id="status" class="error" role="status" aria-live="polite">Wallet not connected.</div>
         <p class="footer">Powered by Ethereum · Sepolia Testnet · MetaMask</p>
     </div>
 
@@ -844,7 +879,7 @@
 
                 const address = await signer.getAddress();
                 updateWalletUI(address);
-                showStatus("Wallet connected successfully.");
+                showStatus("Wallet connected successfully.", false, true);
                 await refreshDashboard(false);
             } catch (error) {
                 console.error(error);
@@ -1018,6 +1053,7 @@
             try {
                 if (announce) showStatus("Loading registered accounts...");
                 const accounts = await contract.getAccounts();
+                const currentAddress = signer ? (await signer.getAddress()).toLowerCase() : "";
                 const list = document.getElementById("accountsList");
                 list.innerHTML = "";
 
@@ -1032,12 +1068,27 @@
                     row.className = "account";
                     const number = document.createElement("span");
                     number.className = "account-index";
-                    number.textContent = String(index + 1).padStart(2, "0");
+                    number.textContent = `A${index + 1}`;
+
+                    const details = document.createElement("div");
+                    details.className = "account-details";
+                    const name = document.createElement("div");
+                    name.className = "account-name";
+                    name.textContent = `Account ${index + 1}`;
                     const address = document.createElement("span");
                     address.className = "account-address";
                     address.title = account;
                     address.textContent = account;
-                    row.append(number, address);
+                    details.append(name, address);
+                    row.append(number, details);
+
+                    if (account.toLowerCase() === currentAddress) {
+                        const badge = document.createElement("span");
+                        badge.className = "account-badge";
+                        badge.textContent = "Current";
+                        row.appendChild(badge);
+                    }
+
                     list.appendChild(row);
                 });
 
@@ -1210,10 +1261,11 @@
             return "Transaction failed.";
         }
 
-        function showStatus(message, isError = false) {
+        function showStatus(message, isError = false, isSuccess = false) {
             const status = document.getElementById("status");
             status.innerText = message;
             status.classList.toggle("error", isError);
+            status.classList.toggle("success", isSuccess && !isError);
             status.classList.add("visible");
             clearTimeout(statusTimer);
             statusTimer = setTimeout(() => status.classList.remove("visible"), 5200);
