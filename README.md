@@ -122,7 +122,7 @@ const CONTRACT_ADDRESS = "YOUR_CONTRACT_ADDRESS_HERE";
 Replace the placeholder with the contract address copied from Remix:
 
 ```javascript
-const CONTRACT_ADDRESS = "0xYourDeployedContractAddress";
+const CONTRACT_ADDRESS = "YOUR_CONTRACT_ADDRESS_HERE";
 ```
 
 The contract ABI in `index.html` already matches `SimpleBank.sol` and does not need to be changed.
