@@ -49,7 +49,7 @@ Keeping these balances separate prevents the free registration tokens from being
 | `index.html` | Responsive frontend and ethers.js integration. |
 | `README.md` | Setup, deployment, usage, and architecture documentation. |
 | `Code_Explanation_And_Workflow.md` | Technical explanation, testing flow, faucet steps, and screen-recording guide. |
-| `BCT_Miniproject_REPORT_Megh_Dipak_Bari.pdf` | Final personalized academic report with verified Remix output. |
+| `BCT-Miniproject-report-megh-bari.pdf` | Final personalized academic report with verified Remix output. |
 
 ## Smart contract architecture
 
